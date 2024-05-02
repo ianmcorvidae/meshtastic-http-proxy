@@ -12,7 +12,7 @@ fastapi==0.110.2
 h11==0.14.0
 httptools==0.6.1
 idna==3.7
-meshtastic==2.3.7
+meshtastic==2.3.8
 packaging==24.0
 pexpect==4.9.0
 protobuf==5.26.1
