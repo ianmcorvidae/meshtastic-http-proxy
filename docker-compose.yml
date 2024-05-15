@@ -1,0 +1,17 @@
+services:
+  meshtastic-http-proxy:
+    build:
+      context: .
+      dockerfile: DockerBuild
+
+    container_name: meshtastic-http-proxy
+    
+    environment:
+      - DEBUG=1
+      - MESHTASTIC_TCP_HOST=192.168.1.123
+
+    volumes:
+     - .:/data:ro
+
+    ports:
+      - 8000:8000
