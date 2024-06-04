@@ -2,12 +2,14 @@ from fastapi import FastAPI, Response, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from meshtastic.tcp_interface import TCPInterface
+from meshtastic.ble_interface import BLEInterface
 from meshtastic.mesh_pb2 import FromRadio, ToRadio
 from pydantic import BaseModel
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 from typing_extensions import Annotated
 from contextlib import asynccontextmanager
+import bleak
 import logging
 import os
 
@@ -26,14 +28,36 @@ class WrappedTCPInterface(TCPInterface):
         bufs.append(fromRadioBytes)
         return TCPInterface._handleFromRadio(self, fromRadioBytes)
 
-client: Optional[WrappedTCPInterface] = None
+class WrappedBLEInterface(BLEInterface):
+
+    def __init__(self, *args, **kwargs):
+        BLEInterface.__init__(self, *args, **kwargs)
+
+    def _handleFromRadio(self, fromRadioBytes: bytes):
+        bufs.append(fromRadioBytes)
+        return BLEInterface._handleFromRadio(self, fromRadioBytes)
+
+client: Optional[Union[WrappedBLEInterface, WrappedTCPInterface]] = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global client
     host = os.getenv("MESHTASTIC_TCP_HOST") or "localhost"
-    client = WrappedTCPInterface(host)
+    ble_host = os.getenv("MESHTASTIC_BLE_MAC")
+    if ble_host is None or ble_host == "":
+        client = WrappedTCPInterface(host)
+    else:
+        try:
+            client = WrappedBLEInterface(ble_host)
+        except bleak.exc.BleakDBusError:
+            print("Trying a second connect attempt")
+            try:
+                client = WrappedBLEInterface(ble_host)
+            except bleak.exc.BleakDBusError:
+                print("Trying a third connect attempt")
+                client = WrappedBLEInterface(ble_host)
     yield
+    client.close()
     client = None
 
 app = FastAPI(lifespan=lifespan)
