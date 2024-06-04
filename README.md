@@ -1,16 +1,28 @@
-usage:
+## Usage:
 
+```
 DEBUG=1 MESHTASTIC_TCP_HOST=192.168.1.123 uvicorn main:app
+```
 
-debug defaults off, any value turns it on
-tcp host defaults to localhost
+or
 
-you will probably want to connect via localho.st:8000 or a similar thing
+```
+MESHTASTIC_BLE_MAC=AB:CD:EF:01:23:45 uvicorn main:app
+```
 
+`DEBUG` defaults off, any value turns it on
+BLE is tried first; if empty, TCP is tried; if empty, `localhost` is tried
+
+You will probably want to connect via `localho.st:8000` or something else that gives you a real hostname, because using plain `localhost` will have CORS restrictions.
+
+At present TLS is not supported, but this could probably work behind Caddy or nginx or something like that. I just haven't tried it.
 
 ## Docker Compose
-Clone repo and update the enviroment settings in the `docker-compose.yml`
+
+After cloning the repository, update the environment variables in `docker-compose.yml` to match TCP or BLE connection & debug settings as desired.
+
 Run `docker compose up -d` to start the container
 
 ### Re-build
-To re-build the docker image, you can either remove the image `docker image ls` or run `docker compose up -d --build` to force the build
+
+To re-build the docker image, you can either remove the image by using `docker image ls` and then `docker image rm` on the appropriate image, or run `docker compose up -d --build` to force a rebuild through docker-compose.

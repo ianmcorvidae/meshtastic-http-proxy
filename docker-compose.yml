@@ -2,7 +2,7 @@ services:
   meshtastic-http-proxy:
     build:
       context: .
-      dockerfile: DockerBuild
+      dockerfile: Dockerfile
 
     container_name: meshtastic-http-proxy
     
