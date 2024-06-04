@@ -1,8 +1,0 @@
-usage:
-
-DEBUG=1 MESHTASTIC_TCP_HOST=192.168.1.123 uvicorn main:app
-
-debug defaults off, any value turns it on
-tcp host defaults to localhost
-
-you will probably want to connect via localho.st:8000 or a similar thing
